@@ -1,5 +1,13 @@
 <?php
-$nama = htmlspecialchars($_POST['nama']);
+// Koneksi ke database
+$koneksi = new mysqli("localhost", "root", "", "modul19");
+if ($koneksi->connect_error) {
+    die("Koneksi gagal: " . $koneksi->connect_error);
+}
+
+// Ambil data dari form
+$nama_asli = $_POST['nama'];
+$nama = htmlspecialchars($nama_asli);
 $tanggal = $_POST['tanggal_lahir'];
 
 $bulan = [
@@ -30,6 +38,15 @@ if (count($hobi) > 0) {
 } else {
     $hasil_hobi = "Tidak ada hobi yang dipilih";
 }
+
+// Simpan ke database
+$stmt = $koneksi->prepare(
+    "INSERT INTO data_diri (nama_lengkap, tanggal_lahir, hobi) VALUES (?, ?, ?)"
+);
+$stmt->bind_param("sss", $nama_asli, $tanggal, $hasil_hobi);
+$stmt->execute();
+$stmt->close();
+$koneksi->close();
 ?>
 
 <!DOCTYPE html>
